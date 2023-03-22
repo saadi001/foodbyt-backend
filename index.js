@@ -17,6 +17,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
      try {
           const itemsCollection = client.db('foodbyt').collection('items')
+          const usersCollection = client.db('foodbyt').collection('users')
 
 
 
@@ -32,6 +33,12 @@ async function run() {
                const itemsByid = await itemsCollection.findOne(query)
                res.send(itemsByid)
           })
+
+          app.post('/users', async(req, res)=>{
+               const query = req.body;
+               const result = await usersCollection.insertOne(query)
+               res.send(result)
+          })    
      }
      finally {
 
@@ -44,6 +51,9 @@ app.get('/', async (req, res) => {
      res.send('server is running')
 })
 
+app.get('/itemManually', async(req, res)=>{
+     res.send(items)
+})
 
 app.listen(port, () => {
      console.log(`server is running at ${port} port`)
