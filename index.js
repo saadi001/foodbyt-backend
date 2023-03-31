@@ -4,6 +4,7 @@ const app = express()
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const items = require('./data/Items.json')
+const fakeData = require('./data/DemoData2.json')
 const port = process.env.PORT || 5000;
 
 app.use(cors())
@@ -18,7 +19,7 @@ async function run() {
      try {
           const itemsCollection = client.db('foodbyt').collection('items')
           const usersCollection = client.db('foodbyt').collection('users')
-
+          const ordersCollection = client.db('foodbyt').collection('orders')
 
 
           app.get('/items', async(req, res)=>{
@@ -34,11 +35,46 @@ async function run() {
                res.send(itemsByid)
           })
 
+          app.get('/orders', async(req, res)=>{
+               const query = {}
+               const orders = await ordersCollection.find(query).toArray()
+               res.send(orders)
+          })
+
+          // getting pending order by email 
+          app.get('/pendingOrders', async(req, res)=>{
+               let query = {}
+               if(req.query.email){
+                    query = {
+                         email: req.query.email,
+                         order: 'pending'
+                    }
+               }
+               const pendingOrders = await ordersCollection.find(query).toArray()
+               res.send(pendingOrders)
+          })
+
+          app.get('/doneOrders', async(req, res)=>{
+               let query = {}
+               if(req.query.email){
+                    query = {
+                         email: req.query.email,
+                         order: "done"
+                    }
+               }
+          })
+
           app.post('/users', async(req, res)=>{
                const query = req.body;
                const result = await usersCollection.insertOne(query)
                res.send(result)
-          })    
+          })   
+
+          app.post('/orders', async(req, res)=>{
+               const query = req.body;
+               const result = await ordersCollection.insertOne(query)
+               res.send(result)
+          })
      }
      finally {
 
@@ -53,6 +89,10 @@ app.get('/', async (req, res) => {
 
 app.get('/itemManually', async(req, res)=>{
      res.send(items)
+})
+
+app.get('/fakeData', async(req, res)=>{
+     res.send(fakeData)
 })
 
 app.listen(port, () => {
