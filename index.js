@@ -35,6 +35,12 @@ async function run() {
                res.send(itemsByid)
           })
 
+          app.get("/users", async(req, res)=>{
+               const query = {}
+               const users = await usersCollection.find(query).toArray()
+               res.send(users)
+          })
+
           app.get('/orders', async(req, res)=>{
                const query = {}
                const orders = await ordersCollection.find(query).toArray()
@@ -54,14 +60,16 @@ async function run() {
                res.send(pendingOrders)
           })
 
-          app.get('/doneOrders', async(req, res)=>{
-               let query = {}
+          app.get('/completedOrder', async(req, res)=>{
+               let query ={}
                if(req.query.email){
                     query = {
                          email: req.query.email,
-                         order: "done"
+                         order: 'done'
                     }
                }
+               const completedOrders = await ordersCollection.find(query).toArray()
+               res.send(completedOrders)
           })
 
           app.post('/users', async(req, res)=>{
@@ -73,6 +81,19 @@ async function run() {
           app.post('/orders', async(req, res)=>{
                const query = req.body;
                const result = await ordersCollection.insertOne(query)
+               res.send(result)
+          })
+
+          app.put('/orders/:id', async(req, res)=>{
+               const id = req.params.id;
+               const filter = {_id:ObjectId(id)}
+               const option = {upsert: true}
+               const updatedDoc = {
+                    $set: {
+                         order: 'completed'
+                    }
+               }
+               const result = await ordersCollection.updateOne(filter, updatedDoc, option)
                res.send(result)
           })
      }
