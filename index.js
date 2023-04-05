@@ -65,7 +65,7 @@ async function run() {
                if(req.query.email){
                     query = {
                          email: req.query.email,
-                         order: 'done'
+                         order: 'completed'
                     }
                }
                const completedOrders = await ordersCollection.find(query).toArray()
@@ -73,7 +73,15 @@ async function run() {
           })
 
           app.post('/users', async(req, res)=>{
-               const query = req.body;
+               const users = req.body;
+               const query = {
+                    email : users.email
+               }
+               const alreadyRegister = await usersCollection.find(query).toArray()
+               if(alreadyRegister.length){
+                    const message = `Welcome back`
+                    return res.send({acknowledged: false, message})
+               }
                const result = await usersCollection.insertOne(query)
                res.send(result)
           })   
