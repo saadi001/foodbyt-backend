@@ -60,6 +60,28 @@ async function run() {
                res.send(pendingOrders)
           })
 
+          app.get('/pendingOrderForAdmin', async(req, res)=>{
+               let query = {}
+               if(req.query.order){
+                    query = {
+                         order: 'pending'
+                    }
+               }
+               const pendingOrders = await ordersCollection.find(query).toArray()
+               res.send(pendingOrders)
+          })
+
+          app.get('/completedOrderForAdmin', async(req, res)=>{
+               let query = {}
+               if(req.query.order){
+                    query = {
+                         order: 'completed'
+                    }
+               }
+               const completedOrders = await ordersCollection.find(query).toArray()
+               res.send(completedOrders)
+          })
+
           app.get('/completedOrder', async(req, res)=>{
                let query ={}
                if(req.query.email){
@@ -82,7 +104,7 @@ async function run() {
                     const message = `Welcome back`
                     return res.send({acknowledged: false, message})
                }
-               const result = await usersCollection.insertOne(query)
+               const result = await usersCollection.insertOne(users)
                res.send(result)
           })   
 
