@@ -20,6 +20,7 @@ async function run() {
           const itemsCollection = client.db('foodbyt').collection('items')
           const usersCollection = client.db('foodbyt').collection('users')
           const ordersCollection = client.db('foodbyt').collection('orders')
+          const shopCollection = client.db('foodbyt').collection('shop')
 
 
           app.get('/items', async(req, res)=>{
@@ -45,6 +46,12 @@ async function run() {
                const query = {}
                const orders = await ordersCollection.find(query).toArray()
                res.send(orders)
+          })
+
+          app.get('/shops', async(req, res)=>{
+               const query = {}
+               const shops = await shopCollection.find(query).toArray()
+               res.send(shops)
           })
 
           // getting pending order by email 
