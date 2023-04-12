@@ -168,6 +168,19 @@ async function run() {
                const result = await ordersCollection.updateOne(filter, updatedDoc, option)
                res.send(result)
           })
+
+          app.put('/user/admin/:id', async(req, res)=>{
+               const id = req.params.id;
+               const filter = {_id: ObjectId(id)}
+               const option = {upsert: true}
+               const updatedDoc = {
+                    $set: {
+                         role: 'admin'
+                    }
+               }
+               const result = await usersCollection.updateOne(filter, updatedDoc, option)
+               res.send(result)
+          })
      }
      finally {
 
