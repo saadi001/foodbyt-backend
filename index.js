@@ -58,7 +58,7 @@ async function run() {
                res.send(users)
           })
 
-          app.get('/orders', async(req, res)=>{
+          app.get('/orders',verifyJWT, async(req, res)=>{
                const query = {}
                const orders = await ordersCollection.find(query).toArray()
                res.send(orders)
@@ -71,7 +71,12 @@ async function run() {
           })
 
           // getting pending order by email 
-          app.get('/pendingOrders', async(req, res)=>{
+          app.get('/pendingOrders',verifyJWT, async(req, res)=>{
+               const email = req.query.email;
+               const decodedEmail = req.decoded.email;
+               if(email != decodedEmail){
+                    return res.status(403).send({message: 'forbidden access'})
+               }
                let query = {}
                if(req.query.email){
                     query = {
@@ -83,7 +88,8 @@ async function run() {
                res.send(pendingOrders)
           })
 
-          app.get('/pendingOrderForAdmin', async(req, res)=>{
+          // all pending orders for admin 
+          app.get('/pendingOrderForAdmin',verifyJWT, async(req, res)=>{               
                let query = {}
                if(req.query.order){
                     query = {
@@ -94,6 +100,7 @@ async function run() {
                res.send(pendingOrders)
           })
 
+          // all completed orders for admin 
           app.get('/completedOrderForAdmin', async(req, res)=>{
                let query = {}
                if(req.query.order){
@@ -126,7 +133,7 @@ async function run() {
                     const token = jwt.sign({email}, process.env.ACCESS_TOKEN, {expiresIn: '1h'})
                     return res.send({accessToken: token})
                }
-               res.status(403).send({accessToken: 'token'})
+               res.status(403).send({accessToken: ''})
           })
 
           app.post('/users', async(req, res)=>{
