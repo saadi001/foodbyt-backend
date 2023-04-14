@@ -124,6 +124,13 @@ async function run() {
                res.send(completedOrders)
           })
 
+          app.get('/user/admin/:email', async(req, res)=>{
+               const email = req.params.email;
+               const query = {email}
+               const user = await usersCollection.findOne(query)
+               res.send({isAdmin: user?.role === "admin"})
+          })
+
           // getting jwt token 
           app.get('/jwt', async(req, res)=>{
                const email = req.query.email;
@@ -132,7 +139,7 @@ async function run() {
                if(user){
                     const token = jwt.sign({email}, process.env.ACCESS_TOKEN, {expiresIn: '1h'})
                     return res.send({accessToken: token})
-               }
+               }g
                res.status(403).send({accessToken: ''})
           })
 
@@ -169,7 +176,13 @@ async function run() {
                res.send(result)
           })
 
-          app.put('/user/admin/:id', async(req, res)=>{
+          app.put('/user/admin/:id',verifyJWT, async(req, res)=>{
+               const decodedEmail = req.decoded.email;
+               const query = {email: decodedEmail}
+               const user = await usersCollection.findOne(query)
+               if(user?.role !== 'admin'){
+                    return res.status(403).send({message: 'forbidden access'})
+               }
                const id = req.params.id;
                const filter = {_id: ObjectId(id)}
                const option = {upsert: true}
@@ -181,6 +194,8 @@ async function run() {
                const result = await usersCollection.updateOne(filter, updatedDoc, option)
                res.send(result)
           })
+
+          
      }
      finally {
 
