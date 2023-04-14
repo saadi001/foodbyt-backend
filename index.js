@@ -195,7 +195,24 @@ async function run() {
                res.send(result)
           })
 
-          
+          app.put('/user/makeUser/:id',verifyJWT, async(req, res)=>{
+               const decodedEmail = req.decoded.email;
+               const query = {email: decodedEmail}
+               const user = await usersCollection.findOne(query)
+               if(user?.role !== 'admin'){
+                    return res.status(403).send({message: 'forbidden access'})
+               }
+               const id = req.params.id;
+               const filter = {_id: ObjectId(id)}
+               const option = {upsert: true}
+               const updatedDoc = {
+                    $set: {
+                         role: 'user'
+                    }
+               }
+               const result = await usersCollection.updateOne(filter, updatedDoc, option)
+               res.send(result)
+          })
      }
      finally {
 
