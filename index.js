@@ -37,6 +37,7 @@ async function run() {
           const usersCollection = client.db('foodbyt').collection('users')
           const ordersCollection = client.db('foodbyt').collection('orders')
           const shopCollection = client.db('foodbyt').collection('shop')
+          const adCollection = client.db('foodbyt').collection('advertisement')
 
 
           app.get('/items', async(req, res)=>{
@@ -68,6 +69,12 @@ async function run() {
                const query = {}
                const shops = await shopCollection.find(query).toArray()
                res.send(shops)
+          })
+
+          app.get('/advertisement', async(req, res)=>{
+               const query = {}
+               const ads = await adCollection.find(query).toArray()
+               res.send(ads)
           })
 
           // getting pending order by email 
@@ -170,6 +177,19 @@ async function run() {
                const updatedDoc = {
                     $set: {
                          order: 'completed'
+                    }
+               }
+               const result = await ordersCollection.updateOne(filter, updatedDoc, option)
+               res.send(result)
+          })
+
+          app.put('/makePendingOrder', async(req, res)=>{
+               const id = req.params.id;
+               const filter = {_id: ObjectId(id)}
+               const option = {upsert: true}
+               const updatedDoc = {
+                    $set: {
+                         order: 'pending'
                     }
                }
                const result = await ordersCollection.updateOne(filter, updatedDoc, option)
